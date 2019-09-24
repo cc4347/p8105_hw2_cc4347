@@ -5,7 +5,16 @@ date: "9/24/2019"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Problem 0
+
+# Creating subdirectories to access data sets with relative paths
+
+```{r}
+"./HW2/p8105_hw2_cc4347/Mr.TrashWheel.xlsx"
+"./HW2/p8105_hw2_cc4347/fivethirtyeight_datasets/"
 ```
 
+## Problem 1
+
+
+## Problem 2
