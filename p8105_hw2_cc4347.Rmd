@@ -5,32 +5,23 @@ date: "9/24/2019"
 output: github_document
 ---
 
-## Problem 0
-
-# Creating subdirectories to access data sets with relative paths
-
-```{r}
-getwd() #"/Users/alexandercoulter/Desktop/Columbia/Fall 2019 Courses/Data Science/HW 2/p8105_hw2_cc4347"
-
-```
-
 ## Problem 1
 ```{r}
 library(tidyverse)
 library(readxl)
 
-Trash_Wheel = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = 1, skip = 2) %>%
-  select(-...15, -...16, -...17) %>%
+Trash_Wheel = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = 1, skip = 1) %>%
+  select(-...15, -...16, -...17,
+        Sports_Balls = "Sports Balls" ) %>%
   drop_na(Dumpster) %>%
-  mutate(
-    round("Sports Balls", 0),
-    "Sports Balls" = as.integer("Sports Balls"))
+  mutate(Sports_Balls = as.integer(round(Sports_Balls, 0)))
+```
 
+The median number of sports balls in dumspters in the year 2018 was 4.
+```{r}
 Trash_Wheel %>%
-  group_by(Year) %>%
-  summarize(
-    median_balls = median("Sports Balls")
-  )
+  filter(Year == 2018) %>%
+  summarize(median_Sports_Balls = median(Sports_Balls))
 ```
 
 ```{r}
@@ -56,10 +47,11 @@ precip =
 ```
 
 The final trash dataset contained
-The final precipatation dataset contained 24 rows of observations and 3 variables, including year, month, and total precipitation. The total precipitation in 2018 was 70.33.
+The final precipatation dataset contained 24 rows of observations and 3 variables, including year, month, and total precipitation. The total precipitation in 2018 was 70.33. The median number of sports balls in dumpster in the year 2018 was `Trash_Wheel %>% filter(Year == 2018) %>% summarize(median_Sports_Balls = median(Sports_Balls))`.
 
 ## Problem 2
 
+# Cleaning pols dataset
 ```{r}
 pols = (
   read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
@@ -75,6 +67,7 @@ pols = (
   )
 ```
 
+# Cleaning snp dataset
 ```{r}
 snp = (
   read_csv("fivethirtyeight_datasets/snp.csv") %>%
@@ -88,6 +81,7 @@ snp = (
 )
 ```
 
+# Cleaning unemployment dataset
 ```{r}
 unemployment = 
   read.csv("fivethirtyeight_datasets/unemployment.csv") %>%
@@ -100,6 +94,7 @@ unemployment =
   arrange(year, month)
 ```
 
+# Joining pols, snp, and unemployment datasets in "final".
 ```{r}
 join1 <- left_join(pols, snp, by = c("year", "month"))
 final <- left_join(join1, unemployment, by = c("year", "month"))
@@ -107,9 +102,10 @@ final <- left_join(join1, unemployment, by = c("year", "month"))
 
 The pols-month dataset included information about which politicla party held the presidential office, specified by month and year. It also included data on the number of republican or democratic representatives and senators were in office. The unemployment dataset showed unmployment rates over time. After joining these datasets, there are 822 rows of observations with 11 variables. The dataset was arranged to begin with year and month, which can allow us to assess temporal trends in unemployment rates not only throughout time, but categorized but which and political party held the presidential office at the time. Unemployment is used as a way to measure economic development or growth (or lackthereof), and is therefore often used as a metric for determining how successful a president is while in office.
 
+
 ## Problem 3
 
-Loading and tidying baby name dataset. Birth year and child name variables have been renamed and duplicated data has been removed.
+# Cleaning baby names dataset.
 ```{r}
 baby_names = read.csv("Popular_Baby_Names.csv") %>%
   janitor::clean_names() %>%
@@ -119,33 +115,31 @@ baby_names = read.csv("Popular_Baby_Names.csv") %>%
   distinct()
 ```
 
+# Table
 Producing a table showing the rank in popularity of the name "Olivia" among female children over time.
 ```{r}
 baby_names %>%
-  group_by(FEMALE) %>%
-  summarize
+  filter(name == "Olivia", gender == "FEMALE") %>%
+  group_by(rank) %>%
+  select(-count)
 ```
 
+# Table
 Producing a table showing the most popular name among male children over time.
 ```{r}
-
+baby_names %>%
+  filter(gender == "MALE", rank == "1") %>%
+  group_by(rank, birth_year)
 ```
 
+# Scatterplot
 Producing a scatterplot showing the number of children with different names against the rank in popularity of that name, specifically for male non-hispanic children born in 2016. Child name is on the y-axis and popularity rank is on the x-axis.
 ```{r}
-ggplot(baby_names, aes(x = rank, y = name))
-       select(gender = "MALE"))
+popular_names =
+  baby_names %>%
+  filter(ethnicity == "WHITE NON HISPANIC", gender == "MALE", birth_year == "2016") 
+
+ggplot(data = popular_names, aes(x = rank, y = count, color = count)) + geom_point()
 ```
-
-
-
-
-
-
-
-
-
-
-
 
 
